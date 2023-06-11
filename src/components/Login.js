@@ -1,93 +1,126 @@
-import * as React from 'react';
-import { CssVarsProvider, useColorScheme } from '@mui/joy/styles';
-import Sheet from '@mui/joy/Sheet';
-import Typography from '@mui/joy/Typography';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
-import Input from '@mui/joy/Input';
-import Button from '@mui/joy/Button';
-import Link from '@mui/joy/Link';
+import React, { useState } from 'react';
+import { Button, Container, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import { Link } from 'react-router-dom';
+import { makeStyles } from '@mui/styles';
+import { ThemeProvider } from '@emotion/react';
+import { deepPurple } from '@mui/material/colors';
+import { createTheme } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-function ModeToggle() {
-  const { mode, setMode } = useColorScheme();
-  const [mounted, setMounted] = React.useState(false);
+const theme = createTheme({
+  palette: {
+    primary: deepPurple,
+  },
+});
 
-  // necessary for server-side rendering
-  // because mode is undefined on the server
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-  if (!mounted) {
-    return null;
+const useStyles = makeStyles((theme) => ({
+  video: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    minWidth: "100%",
+    minHeight: "100%",
+    zIndex: -1,
+    background: "#110313",
+    mixBlendMode: "overlay",
+  },
+  centeredImage: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: "40px",
+    paddingBottom: "20px",
+  },
+  container: {
+
   }
+}));
+
+function Login() {
+  const classes = useStyles();
+
+  const [showPassword, setShowPassword] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const validateEmail = () => {
+    const reMail = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    setEmailError(!reMail.test(email));
+  };
+
+  const validatePassword = () => {
+    const rePassword = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$/;
+    setPasswordError(!rePassword.test(password));
+  };
+
+  const userLogin = async () => {
+    // Perform login action
+    if (emailError || passwordError) {
+      alert("Please fix the highlighted errors before submitting the form.");
+    } else {
+      // Proceed with login
+    }
+  };
 
   return (
-    <Button
-      variant="outlined"
-      onClick={() => {
-        setMode(mode === 'light' ? 'dark' : 'light');
-      }}
-    >
-      {mode === 'light' ? 'Turn dark' : 'Turn light'}
-    </Button>
-  );
-}
+    <ThemeProvider theme={theme}>
+      <>
+        <Container style={{ maxWidth: "500px", border: '1px solid black', borderRadius: '4px', backgroundColor: "white", minHeight: "250px" }}>
+          <div style={{ display: "grid" }}>
+            <FormControl>
+              <TextField
+                style={{ paddingBottom: "10px", marginTop: "40px" }}
+                id="outlined-basic"
+                label="Email"
+                variant="outlined"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={validateEmail}
+                error={emailError}
+              />
+            </FormControl>
+            <FormControl style={{ paddingBottom: "10px" }} variant="outlined">
+              <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                type={showPassword ? 'password' : 'text'}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                label="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={validatePassword}
+                error={passwordError}
+              />
+            </FormControl>
 
-export default function App() {
-  return (
-    <CssVarsProvider>
-      <main>
-        <ModeToggle />
-        <Sheet
-          sx={{
-            width: 300,
-            mx: 'auto', // margin left & right
-            my: 4, // margin top & bottom
-            py: 3, // padding top & bottom
-            px: 2, // padding left & right
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            borderRadius: 'sm',
-            boxShadow: 'md',
-          }}
-          variant="outlined"
-        >
-          <div>
-            <Typography level="h4" component="h1">
-              <b>Welcome!</b>
-            </Typography>
-            <Typography level="body2">Sign in to continue.</Typography>
+            <Button variant="contained" onClick={userLogin}>
+              Sign In
+            </Button>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: "10px", color: "black", fontSize: "22px" }}>
+              <Link to="/register" style={{ textDecoration: 'none' }}>
+                Don't have an account? Register
+              </Link>
+            </div>
           </div>
-          <FormControl>
-            <FormLabel>Email</FormLabel>
-            <Input
-              // html input attribute
-              name="email"
-              type="email"
-              placeholder="johndoe@email.com"
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Password</FormLabel>
-            <Input
-              // html input attribute
-              name="password"
-              type="password"
-              placeholder="password"
-            />
-          </FormControl>
-
-          <Button sx={{ mt: 1 /* margin top */ }}>Log in</Button>
-          <Typography
-            endDecorator={<Link href="/register">Sign up</Link>}
-            fontSize="sm"
-            sx={{ alignSelf: 'center' }}
-          >
-            Don&apos;t have an account?
-          </Typography>
-        </Sheet>
-      </main>
-    </CssVarsProvider>
+        </Container>
+      </>
+    </ThemeProvider>
   );
 }
+
+export default Login;
